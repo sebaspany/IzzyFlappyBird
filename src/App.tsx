@@ -36,6 +36,39 @@ const partyNotes = [
   { f: 349, d: 0.5 }, { f: 330, d: 0.5 }, { f: 294, d: 0.5 }, { f: 466, d: 0.25 },
   { f: 466, d: 0.25 }, { f: 440, d: 0.5 }, { f: 349, d: 0.5 }, { f: 392, d: 0.5 }, { f: 349, d: 1 },
 ];
+const hbdNotes = [
+  { f: 264, d: 0.3 }, { f: 264, d: 0.15 }, { f: 297, d: 0.5 }, { f: 264, d: 0.5 },
+  { f: 352, d: 0.5 }, { f: 330, d: 0.9 },
+  { f: 264, d: 0.3 }, { f: 264, d: 0.15 }, { f: 297, d: 0.5 }, { f: 264, d: 0.5 },
+  { f: 396, d: 0.5 }, { f: 352, d: 0.9 },
+  { f: 264, d: 0.3 }, { f: 264, d: 0.15 }, { f: 528, d: 0.5 }, { f: 440, d: 0.5 },
+  { f: 352, d: 0.5 }, { f: 330, d: 0.5 }, { f: 297, d: 0.9 },
+  { f: 470, d: 0.3 }, { f: 470, d: 0.15 }, { f: 440, d: 0.5 }, { f: 352, d: 0.5 },
+  { f: 396, d: 0.5 }, { f: 352, d: 1.0 },
+];
+let hbdInterval: ReturnType<typeof setTimeout> | null = null;
+function startHbdMusic() {
+  stopHbdMusic();
+  if (isMuted) return;
+  let i = 0;
+  const playNext = () => {
+    if (isMuted) { stopHbdMusic(); return; }
+    const note = hbdNotes[i % hbdNotes.length];
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "sine"; o.frequency.value = note.f;
+    g.gain.setValueAtTime(0.13, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + note.d * 0.9);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + note.d);
+    i++;
+    if (i < hbdNotes.length) hbdInterval = setTimeout(playNext, note.d * 420);
+  };
+  playNext();
+}
+function stopHbdMusic() {
+  if (hbdInterval) { clearTimeout(hbdInterval); hbdInterval = null; }
+}
+
 let partyInterval: ReturnType<typeof setTimeout> | null = null;
 function startPartyMusic() {
   stopPartyMusic();
@@ -294,7 +327,7 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mode, setMode] = useState<"original" | "party">("party");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
-  const [gameState, setGameState] = useState<"menu" | "playing" | "dead" | "thanks">("menu");
+  const [gameState, setGameState] = useState<"menu" | "playing" | "dead" | "birthday" | "thanks">("menu");
   const [score, setScore] = useState(0);
   const [chancesLeft, setChancesLeft] = useState(MAX_CHANCES);
   const [totalClicks, setTotalClicks] = useState(() => parseInt(localStorage.getItem("flappy-clicks") || "0"));
@@ -307,10 +340,11 @@ export default function App() {
   const party = mode === "party";
   const level = LEVELS[difficulty];
 
-  useEffect(() => { isMuted = muted; if (muted) stopPartyMusic(); }, [muted]);
+  useEffect(() => { isMuted = muted; if (muted) { stopPartyMusic(); stopHbdMusic(); } }, [muted]);
 
   const goToMenu = useCallback(() => {
     stopPartyMusic();
+    stopHbdMusic();
     setGameState("menu");
     setShowRestartBtn(false);
   }, []);
@@ -333,7 +367,7 @@ export default function App() {
     setTotalClicks(clicksRef.current);
     localStorage.setItem("flappy-clicks", String(clicksRef.current));
     if (gameState === "menu") { startGame(); return; }
-    if (gameState === "dead" || gameState === "thanks") return;
+    if (gameState === "dead" || gameState === "thanks" || gameState === "birthday") return;
     stateRef.current.bv = FLAP;
     sndFlap();
   }, [gameState, startGame]);
@@ -377,9 +411,14 @@ export default function App() {
           setChancesLeft(prev => {
             const next = prev - 1;
             if (next <= 0) {
-              setGameState("thanks");
-              setShowRestartBtn(false);
-              setTimeout(() => setShowRestartBtn(true), 5000);
+              setGameState("birthday");
+              if (!isMuted) startHbdMusic();
+              setTimeout(() => {
+                stopHbdMusic();
+                setGameState("thanks");
+                setShowRestartBtn(false);
+                setTimeout(() => setShowRestartBtn(true), 5000);
+              }, 4000);
             } else {
               setGameState("dead");
             }
@@ -408,7 +447,7 @@ export default function App() {
   }, [gameState, party, level]);
 
   useEffect(() => {
-    if (gameState === "playing" || gameState === "thanks") return;
+    if (gameState === "playing" || gameState === "thanks" || gameState === "birthday") return;
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     drawBg(ctx, 0, party);
@@ -482,6 +521,28 @@ export default function App() {
             <button onClick={(e) => { e.stopPropagation(); party ? continueGame() : startGame(); }} className={"px-8 py-3 rounded-full text-xl font-bold shadow-lg transition-all hover:scale-105 " + (party ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-amber-400 hover:bg-amber-300 text-amber-900")}>
               {party ? "Try Again!" : "Play Again!"}
             </button>
+          </div>
+        )}
+        {gameState === "birthday" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #7B1FA2 0%, #E040FB 30%, #FFD700 50%, #FF4081 70%, #9C27B0 100%)", backgroundSize: "300% 300%", animation: "flashBg 1.5s ease infinite" }}>
+            <style>{`@keyframes flashBg { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } } @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } } @keyframes sparkle { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }`}</style>
+            <div className="absolute inset-0 overflow-hidden">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div key={i} className="absolute text-2xl" style={{ left: `${(i * 17) % 100}%`, top: `${(i * 23 + 10) % 90}%`, animation: `sparkle ${0.8 + (i % 5) * 0.3}s ease infinite`, animationDelay: `${i * 0.15}s` }}>
+                  {["\u2728", "\u2B50", "\u2764\uFE0F", "\uD83C\uDF89", "\uD83C\uDF82", "\uD83C\uDF88"][i % 6]}
+                </div>
+              ))}
+            </div>
+            <div style={{ animation: "popIn 0.6s ease-out" }} className="text-center z-10 px-6">
+              <p className="text-5xl mb-4">\uD83C\uDF82</p>
+              <p className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg" style={{ fontFamily: "'Dancing Script', cursive", textShadow: "2px 2px 8px rgba(0,0,0,0.4), 0 0 20px rgba(255,215,0,0.6)" }}>
+                Happy Birthday
+              </p>
+              <p className="text-5xl font-extrabold mb-4 drop-shadow-lg" style={{ fontFamily: "'Dancing Script', cursive", color: "#FFD700", textShadow: "2px 2px 8px rgba(0,0,0,0.4), 0 0 30px rgba(255,215,0,0.8)" }}>
+                Isabel!
+              </p>
+              <p className="text-2xl">\uD83C\uDF89 \uD83C\uDF88 \uD83C\uDF81 \uD83C\uDF88 \uD83C\uDF89</p>
+            </div>
           </div>
         )}
         {gameState === "thanks" && (
