@@ -480,24 +480,24 @@ export default function App() {
             {party && <p className="text-sm text-amber-300/80 mb-4">Chances left: {chancesLeft}</p>}
             {!party && <div className="mb-4" />}
             <button onClick={(e) => { e.stopPropagation(); party ? continueGame() : startGame(); }} className={"px-8 py-3 rounded-full text-xl font-bold shadow-lg transition-all hover:scale-105 " + (party ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-amber-400 hover:bg-amber-300 text-amber-900")}>
-              {party ? "Try Again!" : "Play Again!"}
+              {party ? "Party Again!" : "Play Again!"}
             </button>
           </div>
         )}
         {gameState === "thanks" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl px-6" style={{ backgroundColor: "rgba(123,31,178,0.92)" }}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl px-10" style={{ backgroundColor: "rgba(123,31,178,0.92)" }}>
             <div className="text-center">
               <p className="text-3xl font-bold text-amber-300 mb-4" style={{ fontFamily: "'Dancing Script', cursive" }}>
                 Thanks for being part of my Birthday Party Fun!
               </p>
-              <p className="text-lg text-purple-100 mb-2">It means a lot to me.</p>
+              <p className="text-lg text-purple-100 mb-2" style={{ fontFamily: "'Dancing Script', cursive" }}>It means a lot to me.</p>
               <p className="text-lg text-purple-100 mb-4">Keep enjoying the party!</p>
-              <p className="text-xl text-amber-200 font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>- Izzy</p>
+              <p className="text-xl text-amber-200 font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>- Isabel</p>
               <p className="text-amber-300/60 mt-4 text-sm">Score: {score}</p>
               {showRestartBtn && (
                 <button onClick={(e) => { e.stopPropagation(); goToMenu(); }}
                   className="mt-6 px-8 py-3 rounded-full text-xl font-bold shadow-lg transition-all hover:scale-105 bg-amber-400 hover:bg-amber-300 text-purple-900">
-                  Play Again!
+                  Party Again!
                 </button>
               )}
             </div>
