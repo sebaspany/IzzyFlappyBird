@@ -1,11 +1,11 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import "./App.css";
 
-const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52, GRAVITY = 0.45, FLAP = -7.5;
+const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52, GRAVITY = 0.15, FLAP = -5.5;
 const LEVELS = {
-  easy: { gap: 220, speed: 1.5, label: "Easy" },
-  medium: { gap: 150, speed: 2.5, label: "Medium" },
-  hard: { gap: 120, speed: 3.2, label: "Hard" },
+  easy: { gap: 260, speed: 3.8, label: "Easy" },
+  medium: { gap: 180, speed: 2.8, label: "Medium" },
+  hard: { gap: 150, speed: 3.2, label: "Hard" },
 };
 type Difficulty = keyof typeof LEVELS;
 const MAX_CHANCES = 5;
@@ -293,7 +293,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, party: boolean) {
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mode, setMode] = useState<"original" | "party">("party");
-  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [gameState, setGameState] = useState<"menu" | "playing" | "dead" | "thanks">("menu");
   const [score, setScore] = useState(0);
   const [chancesLeft, setChancesLeft] = useState(MAX_CHANCES);
@@ -464,7 +464,7 @@ export default function App() {
               </div>
             )}
             <button onClick={(e) => { e.stopPropagation(); startGame(); }} className={"px-8 py-3 rounded-full text-xl font-bold shadow-lg transition-all hover:scale-105 " + (party ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-amber-400 hover:bg-amber-300 text-amber-900")}>
-              {party ? "Start!" : "Play!"}
+              {party ? "Let's Party!" : "Play!"}
             </button>
             {highScore > 0 && <p className={"mt-3 text-sm " + (party ? "text-purple-600/70" : "text-white/80")}>Best: {highScore}</p>}
           </div>
