@@ -1,11 +1,11 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import "./App.css";
 
-const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52, GRAVITY = 0.15, FLAP = -5.5;
+const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52, GRAVITY = 0.25, FLAP = -7.5;
 const LEVELS = {
   easy: { gap: 260, speed: 3.8, label: "Easy" },
   medium: { gap: 180, speed: 2.8, label: "Medium" },
-  hard: { gap: 150, speed: 3.2, label: "Hard" },
+  hard: { gap: 120, speed: 3.2, label: "Hard" },
 };
 type Difficulty = keyof typeof LEVELS;
 const MAX_CHANCES = 5;
