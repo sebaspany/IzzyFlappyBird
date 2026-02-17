@@ -3,12 +3,12 @@ import "./App.css";
 
 const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52, GRAVITY = 0.25, FLAP = -7.5;
 const LEVELS = {
-  easy: { gap: 230, speed: 3.8, label: "Easy" },
+  easy: { gap: 220, speed: 3.0, label: "Easy" },
   medium: { gap: 180, speed: 2.8, label: "Medium" },
   hard: { gap: 120, speed: 3.2, label: "Hard" },
 };
 type Difficulty = keyof typeof LEVELS;
-const MAX_CHANCES = 5;
+const MAX_CHANCES = 3;
 
 interface Pipe { x: number; gapY: number; scored: boolean }
 
