@@ -1,11 +1,11 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import "./App.css";
 
-const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52, GRAVITY = 0.25, FLAP = -7.5;
+const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52;
 const LEVELS = {
-  easy: { gap: 220, speed: 3.0, label: "Easy" },
-  medium: { gap: 180, speed: 2.8, label: "Medium" },
-  hard: { gap: 120, speed: 3.2, label: "Hard" },
+  easy: { gap: 230, speed: 3.0, gravity: 0.10, flap: -4.5, label: "Easy" },
+  medium: { gap: 180, speed: 2.8, gravity: 0.35, flap: -7.5,  label: "Medium" },
+  hard: { gap: 170, speed: 3.2, gravity: 0.45, flap: -6.5, label: "Hard" },
 };
 type Difficulty = keyof typeof LEVELS;
 const MAX_CHANCES = 3;
@@ -334,7 +334,7 @@ export default function App() {
     localStorage.setItem("flappy-clicks", String(clicksRef.current));
     if (gameState === "menu") { startGame(); return; }
     if (gameState === "dead" || gameState === "thanks") return;
-    stateRef.current.bv = FLAP;
+    stateRef.current.bv = level.flap;
     sndFlap();
   }, [gameState, startGame]);
 
@@ -357,7 +357,7 @@ export default function App() {
       if (s.pipes.length === 0 || s.pipes[s.pipes.length - 1].x < W - 200) {
         s.pipes.push({ x: W, gapY: 120 + Math.random() * (H - 200 - gap), scored: false });
       }
-      s.bv += GRAVITY; s.by += s.bv;
+      s.bv += level.gravity; s.by += s.bv;
       s.pipes.forEach(p => { p.x -= speed; });
       s.pipes = s.pipes.filter(p => p.x + PIPE_W > -10);
       s.pipes.forEach(p => {
@@ -379,7 +379,7 @@ export default function App() {
             if (next <= 0) {
               setGameState("thanks");
               setShowRestartBtn(false);
-              setTimeout(() => setShowRestartBtn(true), 5000);
+              setTimeout(() => setShowRestartBtn(true), 3000);
             } else {
               setGameState("dead");
             }
