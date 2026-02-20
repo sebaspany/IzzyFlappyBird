@@ -1,7 +1,14 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import "./App.css";
 
-declare function gtag(command: string, eventName: string, params?: Record<string, unknown>): void;
+declare global {
+  interface Window {
+    gtag: (command: string, eventName: string, params?: Record<string, unknown>) => void;
+  }
+}
+const gtag = (...args: Parameters<Window['gtag']>) => {
+  if (typeof window.gtag === 'function') window.gtag(...args);
+};
 const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52;
 const LEVELS = {
   easy: { gap: 230, speed: 3.0, gravity: 0.10, flap: -4.5, label: "Easy" },
@@ -319,6 +326,7 @@ export default function App() {
   const startGame = useCallback(() => {
     audioCtx.resume();
     gtag('event', 'game_started', { mode, difficulty });
+    stateRef.current = { by: H / 2.5, bv: 0, pipes: [], score: 0, dead: false, tick: 0 };
     setScore(0); setNewRecord(false); setChancesLeft(MAX_CHANCES); setGameState("playing"); setShowRestartBtn(false);
     if (party && !isMuted) startPartyMusic();
   }, [party, mode, difficulty]);
