@@ -342,7 +342,7 @@ export default function App() {
     clicksRef.current++;
     setTotalClicks(clicksRef.current);
     localStorage.setItem("flappy-clicks", String(clicksRef.current));
-    gtag('event', 'tap');
+    gtag('event', 'flap_tap');
     if (gameState === "menu") { startGame(); return; }
     if (gameState === "dead" || gameState === "thanks") return;
     stateRef.current.bv = level.flap;
