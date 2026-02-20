@@ -475,7 +475,7 @@ export default function App() {
               </div>
             )}
             <button onClick={(e) => { e.stopPropagation(); startGame(); }} className={"px-8 py-3 rounded-full text-xl font-bold shadow-lg transition-all hover:scale-105 " + (party ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-amber-400 hover:bg-amber-300 text-amber-900")}>
-              {party ? "Let's Party!" : "Play!"}
+              {party ? "Let's Party!-" : "Play!"}
             </button>
             {highScore > 0 && <p className={"mt-3 text-sm " + (party ? "text-purple-600/70" : "text-white/80")}>Best: {highScore}</p>}
           </div>
