@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import ReactGA from "react-ga4";
 import "./App.css";
 
+declare function gtag(command: string, eventName: string, params?: Record<string, unknown>): void;
 const W = 400, H = 600, CHAR_R = 18, PIPE_W = 52;
 const LEVELS = {
   easy: { gap: 230, speed: 3.0, gravity: 0.10, flap: -4.5, label: "Easy" },
@@ -318,14 +318,13 @@ export default function App() {
 
   const startGame = useCallback(() => {
     audioCtx.resume();
-    ReactGA.event("game_started", { mode, difficulty });
-    stateRef.current = { by: H / 2.5, bv: 0, pipes: [], score: 0, dead: false, tick: 0 };
+    gtag('event', 'game_started', { mode, difficulty });
     setScore(0); setNewRecord(false); setChancesLeft(MAX_CHANCES); setGameState("playing"); setShowRestartBtn(false);
     if (party && !isMuted) startPartyMusic();
   }, [party, mode, difficulty]);
 
   const continueGame = useCallback(() => {
-    ReactGA.event("game_started", { mode, difficulty });
+    gtag('event', 'game_started', { mode, difficulty });
     stateRef.current = { ...stateRef.current, by: H / 2.5, bv: 0, pipes: [], dead: false, tick: 0 };
     setGameState("playing");
     if (party && !isMuted) startPartyMusic();
@@ -335,7 +334,7 @@ export default function App() {
     clicksRef.current++;
     setTotalClicks(clicksRef.current);
     localStorage.setItem("flappy-clicks", String(clicksRef.current));
-    ReactGA.event("tap");
+    gtag('event', 'tap');
     if (gameState === "menu") { startGame(); return; }
     if (gameState === "dead" || gameState === "thanks") return;
     stateRef.current.bv = level.flap;
